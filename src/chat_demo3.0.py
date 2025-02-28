@@ -45,7 +45,7 @@ assert len(config_list) >= 2, "至少需要配置两个模型，请检查OAI_CON
 
 # ---------- 辩论参数配置 ----------
 DEBATE_TOPIC = "人工智能是否应该拥有情感能力"
-MAX_ROUNDS = 6  # 每个辩手发言次数增加至6次
+MAX_ROUNDS = 12  # 每个辩手发言次数
 TOTAL_TURNS = MAX_ROUNDS * 2
 
 # ---------- 模型配置 ----------
@@ -77,7 +77,7 @@ def create_agent(position: str, model_type: str):
             "timeout": 1000  # 增加超时时间
         },
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=1
+        max_consecutive_auto_reply=6
     )
 
 # 初始化双方辩手
