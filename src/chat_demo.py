@@ -1,7 +1,7 @@
 """
 @Author: 李文皓
 @Date: 2025/2/26
-@Description: 一个简单的对话系统演示
+@Description: 一个简单的对话系统演示v1.0
 """
 from autogen import AssistantAgent, UserProxyAgent, config_list_from_json, GroupChat, GroupChatManager
 

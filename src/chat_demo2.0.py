@@ -3,9 +3,19 @@
 @Date: 2025/2/26
 @Description: 修正版辩论系统 v2.2
 """
+
+import hashlib
 from autogen import ConversableAgent, config_list_from_json
 
+
 config_list = config_list_from_json("OAI_CONFIG_LIST.json")
+
+# 性能优化参数
+ASYNC_CONFIG = {
+    "use_async": True,
+    "max_concurrent": 2,
+    "timeout": 15
+}
 
 MODEL_CONFIG = {
     "deepseek-chat": {
@@ -21,6 +31,9 @@ MODEL_CONFIG = {
 }
 
 DEBATE_TOPIC = "人工智能是否应该拥有情感能力"
+TOPIC_HASH = hashlib.md5(DEBATE_TOPIC.encode()).hexdigest()[:8]
+MAX_ROUNDS = 4
+TOTAL_TURNS = MAX_ROUNDS * 2
 
 # 动态生成系统提示
 def create_system_message(position: str, model_type: str) -> str:
@@ -55,18 +68,18 @@ con_agent = ConversableAgent(
 )
 
 # 智能终止条件检测
-def debate_termination_check(last_message: str, history: list) -> bool:
-    termination_keywords = ["共识", "认同", "agree", "conclusion"]
-    if any(kw in last_message.lower() for kw in termination_keywords):
-        return True
-    return len(history) >= 8  # 最大4轮交锋
+def enhanced_termination_check(last_message: str, history: list) -> bool:
+    pro_count = sum(1 for msg in history if msg["name"] == "正方_V3")
+    con_count = sum(1 for msg in history if msg["name"] == "反方_R1")
+    return (pro_count >= MAX_ROUNDS or con_count >= MAX_ROUNDS) or any(kw in last_message.lower() for kw in ["共识", "agree"])
+
 
 # 启动深度辩论
 debate_process = pro_agent.initiate_chat(
     con_agent,
     message=f"本次辩题为{DEBATE_TOPIC}，请从技术伦理角度展开论述",
     max_turns=8,
-    termination_condition=lambda recipient, messages, sender, config: debate_termination_check(messages[-1]["content"], messages)
+    termination_condition=lambda recipient, messages, sender, config: enhanced_termination_check(messages[-1]["content"], messages)
 )
 
 # 生成技术型辩论报告
