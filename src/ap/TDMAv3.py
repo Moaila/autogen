@@ -199,6 +199,73 @@ class DynamicChannelCoordinator:
         except Exception as e:
             logging.warning(f"[{agent_name}] 解析异常，启用回退策略: {str(e)}")  # 降级为警告
             return self._fallback_strategy(agent_name)
+    
+    # def _validate_channels(self, channels, agent_name):
+    #     expected_num = self.traffic_demand[agent_name]
+    #     valid_channels = []
+    #     seen = set()
+        
+    #     for ch in channels:
+    #         if not isinstance(ch, int):
+    #             try: ch = int(ch)
+    #             except: continue
+    #         if 0 <= ch < NUM_CHANNELS and ch not in seen:
+    #             valid_channels.append(ch)
+    #             seen.add(ch)
+        
+    #     current_num = len(valid_channels)
+    #     available = [ch for ch in range(NUM_CHANNELS) if ch not in seen]
+        
+    #     if current_num < expected_num:
+    #         need = expected_num - current_num
+    #         add_num = min(need, len(available))
+    #         valid_channels += available[:add_num]
+    #         if add_num < need:
+    #             valid_channels += random.choices(range(NUM_CHANNELS), k=need-add_num)
+    #     elif current_num > expected_num:
+    #         valid_channels = valid_channels[:expected_num]
+        
+    #     while len(valid_channels) < expected_num:
+    #         valid_channels.append(random.randint(0, NUM_CHANNELS-1))
+        
+    #     return sorted(valid_channels[:expected_num])
+
+    def _validate_channels(self, channels, agent_name):
+        expected_num = self.traffic_demand[agent_name]
+        valid = []
+        
+        # 类型转换与去重
+        for ch in channels:
+            try:
+                ch_int = int(float(ch))  # 兼容浮点型输入
+                if 0 <= ch_int < NUM_CHANNELS:
+                    valid.append(ch_int)
+            except:
+                pass
+        
+        # 去重处理
+        seen = set()
+        unique = []
+        for ch in valid:
+            if ch not in seen:
+                seen.add(ch)
+                unique.append(ch)
+        
+        # 动态补充策略
+        current_num = len(unique)
+        if current_num < expected_num:
+            # 优先补充未使用的信道
+            available = [ch for ch in range(NUM_CHANNELS) if ch not in seen]
+            need = expected_num - current_num
+            add = min(need, len(available))
+            unique += available[:add]
+            
+            # 允许重复补充剩余数量
+            if (remaining := need - add) > 0:
+                unique += random.choices(range(NUM_CHANNELS), k=remaining)
+        
+        # 保证最终数量
+        return sorted(unique[:expected_num])
         
     def _robust_json_extract(self, content):
         """多层级JSON提取"""
