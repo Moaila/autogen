@@ -1,7 +1,8 @@
 """
-TDMA信道协调模拟系统
+TDMA时隙协调模拟系统
+@作者：李文皓
 特点：
-1. 8个可选信道，时隙划分为100ms/段
+1. 8个可选时隙，时隙划分为100ms/段
 2. 冲突检测与Q-learning策略
 3. 实时协调可视化
 """
@@ -49,10 +50,10 @@ class TDMAAPAgent(ConversableAgent):
     
     def _build_system_prompt(self):
         return f"""作为TDMA AP智能体，您需要：
-1. 在{FRAME_SIZE}时隙帧中选择可用信道
+1. 在{FRAME_SIZE}时隙帧中选择可用时隙
 2. 避免与其他AP发生冲突
-3. 学习长期最优信道分配策略
-4. 响应必须为信道编号(0-{NUM_CHANNELS-1})"""
+3. 学习长期最优时隙分配策略
+4. 响应必须为时隙编号(0-{NUM_CHANNELS-1})"""
 
     def _init_history(self):
         self.history = {
@@ -61,7 +62,7 @@ class TDMAAPAgent(ConversableAgent):
         }
     
     def choose_channel(self, slot):
-        """ε-greedy策略选择信道"""
+        """ε-greedy策略选择时隙"""
         if random.random() < self.epsilon:
             return random.randint(0, NUM_CHANNELS-1)
         else:
@@ -82,12 +83,12 @@ class TDMAAPAgent(ConversableAgent):
             self.history['collision'][channel] += 1
     
     def generate_reply(self, messages, sender, **kwargs):
-        """生成信道选择响应"""
+        """生成时隙选择响应"""
         prompt = f"""历史统计（成功率/冲突率）：
 {self.history}
 
 当前时隙：{kwargs['current_slot']}
-请选择信道(0-{NUM_CHANNELS-1})："""
+请选择时隙(0-{NUM_CHANNELS-1})："""
         
         try:
             response = super().generate_reply(
@@ -119,7 +120,7 @@ class TDMAVisualizer:
         }
     
     def update(self, slot, ap1, ap2, throughput):
-        # 信道选择轨迹
+        #时隙选择轨迹
         self.data['ap1_ch'].append(ap1)
         self.data['ap2_ch'].append(ap2)
         self.data['throughput'].append(throughput)
@@ -165,7 +166,7 @@ class TDMASimulation:
             for _ in range(self.total_slots):
                 current_slot = self.scheduler.next_slot()
                 
-                # AP选择信道
+                # AP选择时隙
                 ap1_ch = self.ap1.generate_reply(
                     [], self.ap2, current_slot=current_slot
                 )
