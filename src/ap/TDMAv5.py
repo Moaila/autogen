@@ -1,7 +1,7 @@
 """
 TDMA动态多时隙协调系统
 @作者：李文皓
-ap流量动态变化
+时隙数量动态变化
 """
 import json
 import random
@@ -42,6 +42,7 @@ DEBUG_MODE = False
 class EnhancedChannelPool:
     """时隙资源池"""
     def __init__(self, num_channels):
+        self.num_channels = num_channels
         self.heatmap = defaultdict(int)
         self.available = list(range(num_channels))
         self.usage_queue = []
@@ -180,7 +181,8 @@ class RealTimeVisualizer:
 
 class FeedbackCoordinator:
     def __init__(self):
-        self.channel_pool = EnhancedChannelPool(NUM_CHANNELS)
+        self.num_channels = NUM_CHANNELS
+        self.channel_pool = EnhancedChannelPool(self.num_channels)
         self.traffic_demand = {"AP1": 4, "AP2": 4}  # 初始比例
         self.success_records = []
         self.current_rounds = 0
@@ -216,8 +218,8 @@ class FeedbackCoordinator:
         """动态生成系统提示"""
         return f"""作为无线网络{agent}的智能控制器，请严格遵循以下规则：
 
-        1. 当前需要分配 {NUM_CHANNELS} 个时隙
-        2. 可用时隙范围：0-{NUM_CHANNELS-1}
+        1. 当前需要分配 {self.num_channels} 个时隙
+        2. 可用时隙范围：0-{self.num_channels}
         3. 要尽可能实现100%时隙利用率
         4. 必须使用JSON格式响应，示例：{{"channels": [1,3,5], "reason": "..."}}
 
@@ -238,8 +240,10 @@ class FeedbackCoordinator:
         """生成有效流量需求"""
         while True:
             new_demand = {
-                "AP1": random.randint(1, NUM_CHANNELS-1),
-                "AP2": random.randint(1, NUM_CHANNELS-1)
+                # "AP1": random.randint(1, NUM_CHANNELS-1),
+                # "AP2": random.randint(1, NUM_CHANNELS-1)
+                "AP1": 1,
+                "AP2": 1
             }
             if sum(new_demand.values()) <= NUM_CHANNELS:
                 return new_demand
@@ -258,6 +262,16 @@ class FeedbackCoordinator:
     
         # 返回新的流量需求
         # return new_demand
+    def _adjust_channels(self):
+        """调整时隙数量"""
+        # 示例策略：在8-16之间随机选择偶数
+        self.num_channels = random.choice(range(8, 17, 2))  
+        print(f"\n时隙数量调整为: {self.num_channels}")
+        
+        # 重新初始化相关组件
+        self.channel_pool = EnhancedChannelPool(self.num_channels)
+        self.traffic_demand = self._generate_demand()
+        self._init_agents()
 
     def _negotiation_round(self):
         """完整协商流程"""
@@ -383,7 +397,7 @@ class FeedbackCoordinator:
 
     def run(self):
         """主运行循环"""
-        print(f"TDMA协调系统启动 | 初始比例 AP1:{self.traffic_demand['AP1']} AP2:{self.traffic_demand['AP2']}")
+        print(f"TDMA协调系统启动 | 初始时隙数: {self.num_channels}")
         
         for attempt in range(1, MAX_ATTEMPTS + 1):
             self.current_rounds += 1
@@ -420,7 +434,7 @@ class FeedbackCoordinator:
                 self._save_records()
                 
                 # 更新流量比例
-                self.traffic_demand = self._generate_demand()
+                self._adjust_channels()
                 self.current_rounds = 0
                 print(f"\n更新流量比例 AP1:{self.traffic_demand['AP1']} AP2:{self.traffic_demand['AP2']}")
             
