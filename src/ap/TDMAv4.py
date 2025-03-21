@@ -95,7 +95,7 @@ class RealTimeVisualizer:
     def _init_visualization(self):
         """初始化可视化面板"""
         plt.ion()
-        self.fig, axs = plt.subplots(2, 1, figsize=(12, 10))  # 两行一列的布局
+        self.fig, axs = plt.subplots(2, 1, figsize=(12, 10))
 
         # 时隙分配与冲突
         self.ax1 = axs[0]
@@ -209,8 +209,6 @@ class FeedbackCoordinator:
                 llm_config={"config_list": config_list, "temperature":1.2}
             )
         }
-
-        # 下面的第一条做了调整，原本的内容为当前需要分配{self.traffic_demand[agent]}个时隙 
 
     def _build_system_prompt(self, agent):
         """动态生成系统提示"""
