@@ -239,8 +239,34 @@ class FeedbackCoordinator:
                 "AP1": random.randint(1, NUM_CHANNELS-1),
                 "AP2": random.randint(1, NUM_CHANNELS-1)
             }
+            sum_demand = new_demand["AP1"] + new_demand["AP2"]
             if sum(new_demand.values()) <= NUM_CHANNELS:
                 return new_demand
+            else:
+                ratio = NUM_CHANNELS / sum_demand
+                ap1_scaled = round(new_demand["AP1"] * ratio)
+                ap2_scaled = round(new_demand["AP2"] * ratio)
+                adjusted_demand = {
+                "AP1": max(ap1_scaled, 1),
+                "AP2": max(ap2_scaled, 1)
+                }
+                if adjusted_demand["AP1"] + adjusted_demand["AP2"] == NUM_CHANNELS:
+                    return adjusted_demand
+                else:
+                    # 否则进行二次调整补足到8（使用原始比例）
+                    total = adjusted_demand["AP1"] + adjusted_demand["AP2"]
+                    remainder = NUM_CHANNELS - total
+                    
+                    # 按原始比例分配剩余量（使用浮点数计算保持精度）
+                    original_ratio = new_demand["AP1"] / sum_demand
+                    add_ap1 = round(remainder * original_ratio)
+                    add_ap2 = remainder - add_ap1
+                    
+                    # 应用最终调整
+                    return {
+                        "AP1": adjusted_demand["AP1"] + add_ap1,
+                        "AP2": adjusted_demand["AP2"] + add_ap2
+                    }
 
         # 把比例写死的死板操作
         # possible_ratios = [
