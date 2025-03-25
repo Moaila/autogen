@@ -1,6 +1,5 @@
 """
 @Author: 李文皓
-@Date: 2024/5/20
 @Description: 完整动态双AP协商系统（含大模型集成）
 """
 import random

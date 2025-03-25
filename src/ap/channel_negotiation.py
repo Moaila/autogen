@@ -1,6 +1,5 @@
 """
 @Author: 李文皓
-@Date: 2024/3/1
 @Description: 完全兼容版双AP协商系统
 """
 import random

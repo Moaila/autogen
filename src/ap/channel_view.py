@@ -1,6 +1,5 @@
 """
 @Author: 李文皓
-@Date: 2024/3/2
 @Description: 自动环境生成的双AP协商系统（可视化增强版）
 """
 import random
