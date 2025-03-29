@@ -36,7 +36,10 @@ from matplotlib.font_manager import findSystemFonts, FontManager
 NUM_CHANNELS = 8
 MAX_ATTEMPTS = 200
 TRAFFIC_UPDATE_INTERVAL = 5
-SAVE_FILE = "./records/success_records.json"
+SAVE_FILE = 'success_records.json' 
+
+'''save assess records with timestamp'''
+ASSESS_FILE = f'./records/assess-{time.strftime("%Y-%m-%d-%H-%M-%S")}.json' 
 DEBUG_MODE = False
 
 class EnhancedChannelPool:
@@ -189,6 +192,7 @@ class FeedbackCoordinator:
         self.visualizer = RealTimeVisualizer(self)
         self.feedback_history = []
         self.last_selections = {"AP1": [], "AP2": []}
+        self.assess = []
 
     def _init_agents(self):
         """初始化双智能体"""
@@ -405,6 +409,12 @@ class FeedbackCoordinator:
         used = len(set(ap1 + ap2))
         return conflict == 0 and used == NUM_CHANNELS
 
+    def _save_assess(self, assess):
+        """保存反馈记录"""
+        with open(ASSESS_FILE, 'w') as f:
+            json.dump(assess, f, indent=2)
+            print(f"\n成功保存{len(assess)}条反馈记录到{ASSESS_FILE}")
+        
     def run(self):
         """主运行循环"""
         print(f"TDMA协调系统启动 | 初始比例 AP1:{self.traffic_demand['AP1']} AP2:{self.traffic_demand['AP2']}")
@@ -424,6 +434,12 @@ class FeedbackCoordinator:
             print(f"冲突时隙: {feedback['conflict']['slots'] or '无'}")
             print(f"空闲时隙: {feedback['utilization']['idle'] or '无'}")
             print(f"利用率: {feedback['utilization']['rate']:.0%}")
+            self.assess.append({"AP1 time slots":ap1, 
+                                "AP2 time slots":ap2, 
+                                "confilct slots":feedback['conflict']['slots'],
+                                "idle slots":feedback['utilization']['idle'],
+                                "utilization rate":feedback['utilization']['rate']})
+            self._save_assess(self.assess)
 
             # 增加可视化页面
             self.feedback_history.append(feedback)
