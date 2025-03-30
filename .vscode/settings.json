@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/tom/autogen/ns-3-dev"
+    "cmake.sourceDirectory": "/home/tom/autogen/ns-3-dev",
+    "commentTranslate.targetLanguage": "zh-CN"
 }

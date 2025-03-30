@@ -244,7 +244,7 @@ class FeedbackCoordinator:
                 "AP2": random.randint(1, NUM_CHANNELS-1)
             }
             sum_demand = new_demand["AP1"] + new_demand["AP2"]
-            if sum(new_demand.values()) <= NUM_CHANNELS:
+            if sum(new_demand.values()) == NUM_CHANNELS: #!ssss
                 return new_demand
             else:
                 ratio = NUM_CHANNELS / sum_demand
