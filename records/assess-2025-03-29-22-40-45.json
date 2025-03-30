@@ -1,0 +1,91 @@
+[
+  {
+    "AP1 time slots": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "AP2 time slots": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "confilct slots": [],
+    "idle slots": [],
+    "utilization rate": 1.0
+  },
+  {
+    "AP1 time slots": [
+      0,
+      1,
+      2
+    ],
+    "AP2 time slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "confilct slots": [],
+    "idle slots": [
+      7
+    ],
+    "utilization rate": 0.875
+  },
+  {
+    "AP1 time slots": [
+      0,
+      1,
+      2
+    ],
+    "AP2 time slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "confilct slots": [],
+    "idle slots": [
+      7
+    ],
+    "utilization rate": 0.875
+  },
+  {
+    "AP1 time slots": [
+      0,
+      1,
+      2
+    ],
+    "AP2 time slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "confilct slots": [],
+    "idle slots": [
+      7
+    ],
+    "utilization rate": 0.875
+  },
+  {
+    "AP1 time slots": [
+      0,
+      1,
+      2
+    ],
+    "AP2 time slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "confilct slots": [],
+    "idle slots": [
+      7
+    ],
+    "utilization rate": 0.875
+  }
+]
