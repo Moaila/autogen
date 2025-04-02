@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-04-02 14:11:49",
+  "allocations": {
+    "ThinkPad-X1": {
+      "channels": [
+        69,
+        181
+      ],
+      "bw": 80,
+      "mimo": "3x3"
+    },
+    "iPhone15-Pro": {
+      "channels": [
+        53,
+        117
+      ],
+      "bw": 160,
+      "mimo": "2x2"
+    }
+  },
+  "performance": {
+    "total_throughput": 480,
+    "channel_utilization": "33%",
+    "qos_level": 5
+  }
+}
