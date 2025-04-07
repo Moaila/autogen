@@ -435,7 +435,7 @@ class FeedbackCoordinator:
             print(f"空闲时隙: {feedback['utilization']['idle'] or '无'}")
             print(f"利用率: {feedback['utilization']['rate']:.0%}")
             self.assess.append({"AP1 time slots":ap1, 
-                                "AP2 time slots":ap2, 
+                                "AP2 time slots":ap2,  
                                 "confilct slots":feedback['conflict']['slots'],
                                 "idle slots":feedback['utilization']['idle'],
                                 "utilization rate":feedback['utilization']['rate']})
