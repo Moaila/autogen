@@ -1,3 +1,10 @@
+"""
+@Author: liwenhao
+@功能：语音输入大模型决策系统
+@Date: 2025/4/13
+@需要安装SpeechRecognition pyaudio两个python库并保持联网
+"""
+import speech_recognition as sr
 from autogen import ConversableAgent, config_list_from_json
 import re
 import logging
@@ -5,13 +12,16 @@ import logging
 # 配置日志级别
 logging.basicConfig(level=logging.CRITICAL)
 
-# 精确加载配置
+# 初始化语音识别组件
+recognizer = sr.Recognizer()
+microphone = sr.Microphone()
+
+# 联邦学习初始化
 config_list = config_list_from_json(
     "OAI_CONFIG_LIST.json",
     filter_dict={"model": ["deepseek-reasoner"]}
-)[:1]  # 确保只取第一个配置
+)[:1]
 
-# 强化版提示词结构
 SYSTEM_PROMPT = """联邦学习模式切换决策规则
 
 【输入分析要求】
@@ -39,9 +49,21 @@ agent = ConversableAgent(
         "config_list": config_list,
         "temperature": 0.7,
         "max_tokens": 50,
-        "seed": 42  # 固定随机种子保证稳定性
+        "seed": 42
     }
 )
+
+def enhanced_listener():
+    """静默版语音监听"""
+    with microphone as source:
+        try:
+            audio = recognizer.listen(source, timeout=3, phrase_time_limit=5)
+            return recognizer.recognize_google(audio, language="zh-CN")
+        except (sr.WaitTimeoutError, sr.UnknownValueError):
+            return None
+        except Exception as e:
+            logging.error(f"Audio Error: {str(e)}")
+            return None
 
 def secure_decision(user_input):
     """强化决策流程"""
@@ -60,28 +82,35 @@ def secure_decision(user_input):
         logging.error(f"决策异常: {str(e)}")
         return "0"
 
-# 测试用例验证
-test_cases = [
-    ("我的系统现在好像被干扰了", "1"),
-    ("电脑资源占用太高了", "0"),
-    ("检测到异常流量和未授权访问", "1"),
-    ("处理速度变慢但未发现安全问题", "0")
-]
+# 交互主循环
+print("联邦学习语音决策系统启动（说‘退出’结束）")
+with microphone as source:
+    recognizer.adjust_for_ambient_noise(source, duration=1)
 
-print("【验证测试】")
-for input_text, expected in test_cases:
-    result = secure_decision(input_text)
-    print(f"输入：{input_text.ljust(25)} 预期：{expected} 实际：{result}")
+# 用户提示
+print("\n请提出您的需求：", end="", flush=True)
 
-# 正式交互
-print("\n联邦学习决策系统启动（输入‘exit’或者‘quit’或者‘退出’退出）")
 while True:
-    try:
-        user_input = input("\n状态描述 > ").strip()
-        if user_input.lower() in ('exit', 'quit', '退出'):
+    # 语音捕获阶段
+    voice_input = enhanced_listener()
+    
+    if voice_input:
+        # 退出指令检测
+        if any(kw in voice_input for kw in ["退出", "exit", "quit"]):
+            print("\n接收到终止指令")
             break
-        print(secure_decision(user_input))
-    except KeyboardInterrupt:
-        break
+        
+        # 显示输入内容
+        print(f"\n{voice_input}")
+        
+        # 执行决策逻辑
+        decision = secure_decision(voice_input)
+        print(f"{decision}")
+        
+        # 新提示等待下次输入
+        print("\n请提出您的需求：", end="", flush=True)
+    else:
+        # 无输入时显示等待提示
+        print(".", end="", flush=True)
 
 print("系统安全关闭")
